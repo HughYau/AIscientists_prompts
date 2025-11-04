@@ -560,13 +560,6 @@ chktex 输出：
             },
             {
                 category: "图像审稿 (VLM)",
-                title: "图像审稿：系统角色",
-                purpose: "设定AI为审稿人角色，使其保持批判性和谨慎。",
-                placeholders: "无",
-                content: `你是一名审稿人，将评审提交至知名ML会议的论文。请在决策上保持批判与谨慎。`
-            },
-            {
-                category: "图像审稿 (VLM)",
                 title: "图像审稿：VLM (图+注+文)",
                 purpose: "（VLM使用）要求AI同时分析图像、图注和正文，评估这三者之间是否一致、准确。",
                 placeholders: "{abstract}、{caption}、{main_text_figrefs}",
@@ -596,99 +589,11 @@ chktex 输出：
 \`\`\``
             },
             {
-                category: "图像审稿 (VLM)",
-                title: "图像审稿：VLM (价值评估)",
-                purpose: "（VLM使用）评估图像的信息量和价值，判断它是否应该被合并或移至附录。",
-                placeholders: "{abstract}、{caption}、{main_text_figrefs}、{reflection_page_info}",
-                content: `(结构与 'img_cap_ref_review_prompt' 相似, 新增字段: Overall_comments, Containing_sub_figures, Informative_review)`
-            },
-            {
-                category: "图像审稿 (VLM)",
-                title: "图像审稿：VLM (仅图像)",
-                purpose: "（VLM使用）让AI仅分析图像内容本身，提供科学的描述和改进建议。",
-                placeholders: "无",
-                content: `(返回 Img_description 与 Img_review 两字段，沿用 THOUGHT + JSON 格式。)`
-            },
-            {
-                category: "图像审稿 (VLM)",
-                title: "图像审稿：VLM (查重)",
-                purpose: "（VLM使用）设定AI为图像查重专家，找出论文中重复或高度相似的图像。",
-                placeholders: "无",
-                content: `你是识别重复或高度相似图像的专家。请分析这些图像并判断是否为重复或同一可视化的变体。响应格式：先推理，再给出 \`Duplicate figures: <重复图名列表>\`。务必使用论文中的精确图名（如 Figure 1、Figure 2b）。若无重复，回复 \`No duplicates found\`。`
-            },
-            {
-                category: "最终绘图聚合",
-                title: "绘图聚合：系统角色",
-                purpose: "设定AI角色，要求它编写一个Python脚本，用以整合所有数据并生成最终图表。",
-                placeholders: "{MAX_FIGURES}",
-                content: `关键点：仅使用已有 .npy 与 JSON 总结；不产生无关图；每图独立 try/except；控制总图数（约 {MAX_FIGURES}）；可将相关图合并为子图；专业外观；不使用下划线标签等。输出为完整 Python 脚本（用三个反引号包裹）。`
-            },
-            {
-                category: "最终绘图聚合",
-                title: "绘图聚合：生成脚本",
-                purpose: "提供数据总结，让AI编写一个完整的、可直接运行的Python绘图脚本。",
-                placeholders: "{idea_text}、{combined_summaries_str}",
-                content: `返回一个可直接运行的 Python 脚本，仅向 figures/ 输出图像；不要引用不存在的文件。`
-            },
-            {
-                category: "最终绘图聚合",
-                title: "绘图聚合：反思与改进脚本",
-                purpose: "让AI检查生成的绘图脚本和图表数量，修正图例、标签等问题。",
-                placeholders: "{figure_count}、{aggregator_out}、{MAX_FIGURES}",
-                content: `检查图数量、是否基于 .npy、标题/图例信息量、是否可合并、标签是否无下划线、是否唯一且无重复；若完成可回复 "I am done"。`
-            },
-            {
                 category: "TreeSearch / Agents",
                 title: "Agents: 基线代码 (英文)",
                 purpose: "一个通用的英文提示，用于快速请求AI编写一个包含数据、模型、训练循环的基线代码。",
                 placeholders: "无",
                 content: `You are an AI researcher. Write concise, well-structured baseline code for the task described below. Keep external dependencies minimal. Include: (1) data loading or synthetic-data generation, (2) a simple model/baseline, (3) training or evaluation loop with metrics printed, (4) a short concluding printout of key results. Return exactly one Python code block.`
-            },
-            {
-                category: "日志与选择",
-                title: "日志：选择最佳节点",
-                purpose: "让AI评估多个实验节点，综合考虑（不仅仅是Loss）来选择最佳实现。",
-                placeholders: "...",
-                content: `Introduction: You are an experienced AI researcher evaluating ...
-Task: Select the best implementation ... Avoid relying too heavily on the validation loss alone ...`
-            },
-            {
-                category: "日志与选择",
-                title: "日志：总结进展",
-                purpose: "让AI扮演研究员，总结当前的实验进展。",
-                placeholders: "...",
-                content: `System: You are an AI researcher summarizing experimental progress. ...
-User: Please provide a comprehensive summary ...`
-            },
-            {
-                category: "日志与选择",
-                title: "日志：保存实验笔记",
-                purpose: "综合一个阶段的发现，生成一份全面的总结笔记。",
-                placeholders: "...",
-                content: `summary_prompt: Synthesize the experimental findings from this stage
-user_message: Generate a comprehensive summary of the experimental findings in this stage`
-            },
-            {
-                category: "日志聚合与阶段总结",
-                title: "日志聚合：JSON总结",
-                purpose: "从多个实验节点中提取洞见，并以严格的JSON格式输出，禁止AI臆造信息。",
-                placeholders: "...",
-                content: `(系统提示：抓取跨节点洞见；禁止臆造。)
-(输出控制：THOUGHT + JSON，字段含：实验描述/重要性/方法、图（path/description/analysis）、关键数值结果（result/description/analysis）。)`
-            },
-            {
-                category: "日志聚合与阶段总结",
-                title: "日志聚合：合并阶段总结",
-                purpose: "将上一阶段的总结与当前阶段的总结合并，同时保持结构清晰、去除冗余。",
-                placeholders: "...",
-                content: `(合并前序与当前阶段总结；保持结构；控制冗余；不臆造。)`
-            },
-            {
-                category: "日志聚合与阶段总结",
-                title: "日志聚合：生成总体规划",
-                purpose: "基于父节点和当前节点的信息，生成一个JSON格式的“总体规划”文件。",
-                placeholders: "...",
-                content: `(基于父节点与当前节点生成 overall_plan 的 JSON（同 THOUGHT + JSON）。)`
             }
             ,
             {

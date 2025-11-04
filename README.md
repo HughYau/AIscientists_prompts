@@ -2,7 +2,7 @@
 
 可搜索、可筛选的 AI-Scientist 提示词画廊，支持一键复制与阅读指引，适合研究与写作工作流。
 
-- 在线预览: <https://hughyau.github.io/AIscientists_prompts/>
+- 在线预览: <https://hughyau.com/AIscientists_prompts/>
 - 仓库地址: <https://github.com/HughYau/AIscientists_prompts>
 - Star 一下支持项目发展！
 
