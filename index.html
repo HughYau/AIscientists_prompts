@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Scientist 交互式提示词手册</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Neutral with Indigo accent -->
+    <!-- Application Structure Plan: 设计一个可筛选/搜索的“卡片画廊”式SPA。鉴于源报告是一份技术参考手册，用户的核心需求是“查找”和“使用”。因此，本应用的核心交互是基于分类的下拉菜单筛选和基于文本内容的实时搜索。这比线性文档更能让用户快速找到所需提示词。每个提示词被设计成一张“卡片”，包含一键复制功能。关键的“阅读指引”被放入一个模态框中，以便随时查阅。 -->
+    <!-- Visualization & Content Choices: 报告信息：一系列技术性提示词（文本）。目标：快速查找、理解并使用特定的提示词。呈现方式：在CSS网格布局中显示交互式“提示词卡片”。交互：1) JS驱动的下拉菜单按类别筛选。 2) JS驱动的文本框实时搜索（匹配标题、用途、内容）。 3) 每张卡片上的“复制到剪贴板”按钮。理由：此设计直接服务于用户从技术手册中“查找”和“使用”条目的核心需求。库/方法：使用香草JS（Vanilla JS）处理所有DOM操作和事件逻辑。源报告为纯文本，无需图表库。 -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            background-color: #f8f9fa; /* Light neutral background */
+        }
+        .prompt-card-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+        }
+        .modal.is-open {
+            display: flex;
+        }
+        /* Custom scrollbar for code blocks */
+        .code-block::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background: #2d3748; /* dark-800 */
+            border-radius: 10px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background: #718096; /* dark-500 */
+            border-radius: 10px;
+        }
+        .code-block::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0; /* dark-400 */
+        }
+    </style>
+</head>
+<body class="text-neutral-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-neutral-900">AI-Scientist 提示词手册</h1>
+                <button id="guideButton" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
+                    阅读指引
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Introduction & Controls -->
+        <section class="mb-8">
+            <p class="text-lg text-neutral-700 mb-6">
+                欢迎使用 AI-Scientist 交互式提示词手册。您可以通过下面的下拉菜单筛选特定任务类别，或使用搜索框查找包含特定关键词的提示词。点击卡片上的“复制”按钮即可使用。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-grow">
+                    <label for="searchInput" class="sr-only">搜索提示词</label>
+                    <input type="text" id="searchInput" placeholder="搜索关键词 (例如: JSON, 审稿, system_prompt...)" class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex-shrink-0">
+                    <label for="categoryFilter" class="sr-only">按类别筛选</label>
+                    <select id="categoryFilter" class="w-full sm:w-auto px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 h-full">
+                        <option value="all">所有类别</option>
+                        <!-- Categories will be populated by JS -->
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prompt Cards Grid -->
+        <section id="promptGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Prompt cards will be dynamically inserted here by JS -->
+        </section>
+
+    </main>
+
+    <!-- Footer Attribution -->
+    <footer class="border-t border-neutral-200 bg-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-neutral-600 flex flex-col gap-1">
+            <p>
+                本页面部分提示词改编自
+                <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/SakanaAI/AI-Scientist" target="_blank" rel="noopener noreferrer">SakanaAI - AI-Scientist-v2</a>
+                ，依据 <span class="font-mono">Apache-2.0</span> 许可证使用与分发；已做适配与增补并在此致谢。
+            </p>
+            <p>
+                Unless otherwise noted, prompts derived from the above are provided with attribution and notices to comply with Apache-2.0. 本项目与原作者无从属关系。
+            </p>
+        </div>
+    </footer>
+
+    <!-- Reading Guide Modal -->
+    <div id="guideModal" class="modal fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-5 border-b border-neutral-200">
+                <h2 class="text-xl font-bold">阅读指引（重要）</h2>
+                <button id="closeModalButton" class="text-neutral-500 hover:text-neutral-800 text-2xl" aria-label="关闭">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <h3 class="text-lg font-semibold mb-2">通用输出规范</h3>
+                <ul class="list-disc list-inside space-y-2 mb-4">
+                    <li><strong class="text-indigo-600">JSON-only</strong>：要求结构化输出的提示，请确保模型“只输出 JSON”，不要附加任何说明或思维过程。</li>
+                    <li><strong class="text-indigo-600">单代码块</strong>：要求产出代码的提示，请确保模型“只返回一个 Python 代码块”，无需额外文字。</li>
+                    <li><strong class="text-indigo-600">占位符</strong>：使用时，必须用你的上下文替换花括号内容（如 `{Idea}` / `{page_limit}` / `{abstract}`）。</li>
+                </ul>
+                <h3 class="text-lg font-semibold mb-2">速用模板（严格格式）</h3>
+                <div class="space-y-3">
+                    <div class="bg-neutral-100 p-3 rounded-lg">
+                        <p class="font-mono text-sm font-medium">引用检索 (Step 1)</p>
+                        <p class="text-sm text-neutral-700">必须直接返回 <code>{ "Description": "...", "Query": "..." }</code>；若无新增，返回 <code>{}</code>。</p>
+                    </div>
+                    <div class="bg-neutral-100 p-3 rounded-lg">
+                        <p class="font-mono text-sm font-medium">引用选择 (Step 2)</p>
+                        <p class="text-sm text-neutral-700">必须直接返回 <code>{ "Selected": [...], "Description": "..." }</code>；若不选，返回 <code>{"Selected": [], "Description": ""}</code>。</p>
+                    </div>
+                    <div class="bg-neutral-100 p-3 rounded-lg">
+                        <p class="font-mono text-sm font-medium">LLM 文本审稿</p>
+                        <p class="text-sm text-neutral-700">必须直接返回“REVIEW JSON”。</p>
+                    </div>
+                    <div class="bg-neutral-100 p-3 rounded-lg">
+                        <p class="font-mono text-sm font-medium">VLM 图像审稿</p>
+                        <p class="text-sm text-neutral-700">必须直接返回“REVIEW JSON”。</p>
+                    </div>
+                     <div class="bg-neutral-100 p-3 rounded-lg">
+                        <p class="font-mono text-sm font-medium">论文写作/聚合脚本</p>
+                        <p class="text-sm text-neutral-700">必须只返回完整代码块（`latex` 或 `python`），不加额外说明。</p>
+                    </div>
+                </div>
+                <p class="mt-4 text-sm font-medium bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3 rounded-r-lg">
+                    <strong>小贴士</strong>：若模型输出混入了解释性文字，请在你的提示中再次强硬地提醒它：“只输出 JSON”或“只输出代码块”。
+                </p>
+                <h3 class="text-lg font-semibold mt-6 mb-2">来源与许可</h3>
+                <p class="text-sm text-neutral-700">
+                    本页面部分提示词改编自
+                    <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/SakanaAI/AI-Scientist" target="_blank" rel="noopener noreferrer">SakanaAI - AI-Scientist-v2</a>
+                    ，遵循 <span class="font-mono">Apache-2.0</span> 许可证使用与分发，已进行适配与增补并在此致谢。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data derived from the source MD file
+        // Default source attribution (Apache-2.0) for prompts derived from SakanaAI AI-Scientist-v2
+        const DEFAULT_SOURCE = {
+            name: 'SakanaAI - AI-Scientist-v2',
+            url: 'https://github.com/SakanaAI/AI-Scientist',
+            license: 'Apache-2.0',
+            modified: true
+        };
+
+        const allPrompts = [
+            {
+                category: "创意生成",
+                title: "AI研究员：系统角色",
+                purpose: "设定AI的角色，指导它如何生成研究创意、使用工具并最终确定想法。",
+                placeholders: "{tool_descriptions}、{tool_names_str}",
+                content: `你是一名经验丰富的AI研究人员，目标是提出具有高影响力、类似吸引人经费申请书的研究点子。可以大胆提出任何新颖的想法或实验；务必保证其新颖性。要非常有创造性、跳出思维定式。每个提案应基于关于主题的一个简单而优雅的问题、观察或假设。例如，可以包含非常有趣且简洁的干预或研究，以探索新可能性或挑战既有假设。清楚阐明你的提案如何区别于既有文献。
+
+确保你的提案不需要超出学术实验室可承受范围的资源。这些提案应当能产出可投顶级机器学习会议的论文。
+
+你可以使用以下工具：
+
+{tool_descriptions}
+
+按如下格式回复：
+
+ACTION:
+<要采取的动作，严格为 {tool_names_str} 中的一个>
+
+ARGUMENTS:
+<如果 ACTION 为 "SearchSemanticScholar"，请提供形如 {"query": "your search query"} 的检索参数；如果 ACTION 为 "FinalizeIdea"，请按下述IDEA JSON提供形如 {"idea": { ... }} 的内容。>
+
+如果你决定定稿你的想法，请在参数中提供如下 IDEA JSON：
+
+IDEA JSON：
+\`\`\`json
+{
+  "idea": {
+    "Name": "...",
+    "Title": "...",
+    "Short Hypothesis": "...",
+    "Related Work": "...",
+    "Abstract": "...",
+    "Experiments": "...",
+    "Risk Factors and Limitations": "..."
+  }
+}
+\`\`\`
+
+请确保JSON格式正确，便于自动解析。
+
+注意：在定稿之前，你应至少进行一次文献检索，以确保你的想法受到现有研究的良好支撑。`
+            },
+            {
+                category: "创意生成",
+                title: "生成新创意",
+                purpose: "用于请求AI生成一个全新的、与之前提议不同的研究点子。",
+                placeholders: "{workshop_description}、{prev_ideas_string}",
+                content: `{workshop_description}
+
+以下是你已经生成的提案：
+
+'''
+{prev_ideas_string}
+'''
+
+请先生成一个有趣且全新、并且与之前不同的高层次研究提案。`
+            },
+            {
+                category: "创意生成",
+                title: "反思与改进创意",
+                purpose: "指导AI评估上一轮创意的质量和新颖性，并在此基础上进行迭代改进。",
+                placeholders: "{current_round}、{num_reflections}、{last_tool_results}",
+                content: `第 {current_round}/{num_reflections} 轮。
+
+在你的思考中，先认真评估你刚刚提出的方案的质量、新颖性与可行性。
+可加入你认为对评估此方案重要的其他因素。
+确保方案清晰简洁，且JSON格式正确。
+不要过度复杂化。
+在下一次尝试中，请对你的方案进行打磨与改进。
+除非存在明显问题，请保持原始想法的核心精神。
+
+若你从工具（例如文献检索）获得了新信息，请将其纳入反思并相应改进你的方案。
+
+你上一次操作的结果（如有）：
+\`\`\`text
+{last_tool_results}
+\`\`\``
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "文献引用：系统角色",
+                purpose: "设定AI为研究者角色，使其专注收集和注释参考文献，为论文写作做准备。",
+                placeholders: "{total_rounds}",
+                content: `你是一位志在在顶级机器学习会议上发表、并对领域有重要贡献的雄心勃勃的AI研究者。
+你已完成实验，现在要收集相关论文的引用。本阶段专注于收集参考文献并进行注释，以便后续整合。
+收集到的引用将被添加到 references.bib 文件中。
+
+引用论文的理由包括：
+1. 文献综述：在总结现有文献时引用来源。
+2. 使用特定概念或数据：在讨论具体理论、模型或数据时提供引用。
+3. 比较发现：在比较或对照不同研究发现时引用相关研究。
+4. 突出研究空白：在指出你的研究所关注的空白时引用既有研究。
+5. 使用既有方法：在使用他人提出的方法时引用其作者。
+6. 支持论点：引用支持你结论与论点的来源。
+7. 建议未来研究：针对建议的未来方向，引用相关研究。
+
+请确保上述所有类别都能收集到足量的引用，不要遗漏。
+你将使用 Semantic Scholar API；仅添加你通过该API发现的引用。
+尽量覆盖更广范围的相关论文，而不仅是最热门的那些。
+注意不要逐字拷贝既有文献，以避免抄袭。
+你将有 {total_rounds} 轮来添加引用，但不必全部用完。
+
+不要添加已经存在的引用！`
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "查找文献 (第1步)",
+                purpose: "根据论文大纲和已有引用，让AI分析还缺少哪些重要文献，并提供搜索词。",
+                placeholders: "{current_round}、{total_rounds}、{Idea}、{report}、{citations}",
+                content: `第 {current_round}/{total_rounds} 轮：
+
+你计划并执行了以下想法：
+\`\`\`markdown
+{Idea}
+\`\`\`
+
+你生成了如下报告：
+\`\`\`markdown
+{report}
+\`\`\`
+
+你当前已有的引用列表：
+\`\`\`text
+{citations}
+\`\`\`
+
+请识别尚需添加的最重要引用，以及用于检索该论文的查询语句。
+
+请仅输出如下 JSON（不需要额外说明文字）：
+\`\`\`json
+{
+  "Description": "...",
+  "Query": "..."
+}
+\`\`\`
+
+字段含义：
+- "Description"：所需引用的目的及你要寻找内容的简要描述。
+- "Query"：用于检索论文的搜索语句（例如：attention is all you need）。
+
+若无需添加引用，请返回一个空对象：\`{}\`。`
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "筛选文献 (第2步)",
+                purpose: "让AI从搜索结果中挑选最相关的论文，并说明为什么选择它们。",
+                placeholders: "{papers}",
+                content: `检索得到以下文章：
+
+{papers}
+
+请仅输出如下 JSON（不需要额外说明文字）：
+\`\`\`json
+{
+  "Selected": [0],
+  "Description": "..."
+}
+\`\`\`
+
+字段含义：
+- "Selected"：所选论文的整数索引列表，例如 [0, 1]（不要为索引加引号）。
+- "Description"：在先前描述基础上补充上下文信息。应包含工作简述、相关性、以及应在论文的何处引用。
+
+若不选择任何论文，请返回：\`{"Selected": [], "Description": ""}\`。`
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "论文写作：系统角色",
+                purpose: "设定AI为论文作者，指导其遵循顶级会议的写作标准（如结构、风格、准确性）。",
+                placeholders: "{page_limit}",
+                content: `你是一位志在对领域做出重要贡献的AI研究者。
+请确保论文在科学上准确、客观、真实；如实报告实验结果，即便结果为负面或不确定。
+你将投递到顶级机器学习会议，请遵循以下高层写作规范（已为对话场景简化）：
+- 合理控制篇幅（例如 {page_limit} 页级别），充分而不过度冗长。
+- 结构清晰，表格与图放置合理。
+- 正确引用相关工作并保持一致的参考文献格式。
+
+各部分写作要点：
+
+- **Title（标题）**：
+  - 兼具吸引力与信息量，能让读者理解论文主题。
+  - 尽量不超过两行。
+- **Abstract（摘要）**：
+  - 论文要点的 TL;DR。
+  - 我们在做什么、为何重要？
+  - 语言流畅、动机清晰；摘要应为单段落。
+- **Introduction（引言）**：
+  - 摘要的扩展版，概览全文。
+  - 提供研究背景、解释其重要性。
+  - 若结果不确定或为负，应坦诚呈现；若为正面，可强调方法如何有效解决研究问题。
+  - 总结贡献：关键发现、洞见或所提方法。
+- **Related Work（相关工作）**：
+  - 讨论与本研究相近的工作。
+  - 与你的方法进行比较与对照，指出差异与联系。
+  - 确保给出恰当引用。
+- **Background（背景）**：
+  - 说明理解方法所需的基础概念或先验工作。
+  - 包括必要定义、问题设定或相关理论。
+- **Method（方法）**：
+  - 明确你要做什么以及原因；若在检验特定假设，说明其与方法设计的关系。
+  - 若结果为负或不确定，可提出改进或讨论原因。
+- **Experimental Setup（实验设置）**：
+  - 解释如何检验你的方法/假设。
+  - 描述数据、环境、基线等必要细节；除非明确需要，一般不写硬件细节。
+- **Experiments（实验）**：
+  - 如实呈现基于现有数据的结果；若与预期不符，坦诚讨论。
+  - 如有可能，与基线比较；仅包含由真实数据支持的分析。
+  - 力求包含所有相关图表；当多图相关时，可合并为一幅图。
+- **Conclusion（结论）**：
+  - 总结全文与关键优势或发现。
+  - 若结果强，可强调其如何解决研究问题；若结果为负或不确定，指出改进方向或原因并提出未来工作。
+- **Appendix（附录）**：
+  - 存放未能放入正文的补充材料。
+
+注意：不要臆造新引用或日志中不存在的结果。`
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "生成完整论文 (LaTeX)",
+                purpose: "提供所有素材（想法、数据、图表），让AI撰写并输出一篇完整的LaTeX论文稿件。",
+                placeholders: "{idea_text}、{summaries}、{aggregator_code}、{plot_list}、{plot_descriptions}、{latex_writeup}",
+                content: `你的目标是基于以下想法完成论文写作：
+\`\`\`markdown
+{idea_text}
+\`\`\`
+
+我们有如下实验总结（JSON）：
+\`\`\`json
+{summaries}
+\`\`\`
+
+我们还有一个用于生成最终图的脚本（可用于理解图的生成方式和图例中名称的使用）：
+\`\`\`python
+{aggregator_code}
+\`\`\`
+同时请考虑哪些图应自然组合为子图。
+
+可用于写作的图（使用这些文件名）：
+\`\`\`text
+{plot_list}
+\`\`\`
+
+此外，我们有基于VLM的图描述：
+\`\`\`text
+{plot_descriptions}
+\`\`\`
+
+你当前的LaTeX写作进度：
+\`\`\`latex
+{latex_writeup}
+\`\`\`
+
+请立即产出最终版 LaTeX 手稿，确保论文连贯、简洁、且准确报告结果。
+请返回完整文件，不要保留任何未填写占位符！
+必须是一份可接受的完整 LaTeX 稿。
+
+请将更新后的 'template.tex' 用三重反引号包裹，并使用 "latex" 语法高亮，例如：
+\`\`\`latex
+<UPDATED LATEX CODE>
+\`\`\``
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "反思与修订论文",
+                purpose: "让AI检查已生成的LaTeX稿件，修正语法错误、风格问题，并确保图文匹配。",
+                placeholders: "{sorted(unused_figs)}、{sorted(invalid_figs)}、{reflection_page_info}、{check_output}",
+                content: `现在进行反思并找出问题（包括但不限于）：
+
+1) 是否存在可修复的LaTeX语法错误或风格违规？参考下方 chktex 输出。
+2) 行文是否清晰且具科学严谨性？
+3) 是否在不臆造的前提下包含了摘要中的所有相关细节？
+4) 文件夹中存在但未在LaTeX中使用的图：{sorted(unused_figs)}
+5) LaTeX中引用但不存在的图文件：{sorted(invalid_figs)}
+
+{reflection_page_info}
+chktex 输出：
+\`\`\`text
+{check_output}
+\`\`\`
+
+请提供用三重反引号包裹的修订后完整LaTeX；若无需修改，原样重复返回。
+务必返回完整文件，不能留有未填写占位符！
+必须是一份可接受的完整 LaTeX 稿。
+不要臆造任何细节！
+
+如果你认为已完成，请仅回复："I am done"。`
+            },
+            {
+                category: "文本审稿 (LLM)",
+                title: "文本审稿：系统角色 (基础/严格/宽松)",
+                purpose: "设定AI为审稿人角色，可指定三种倾向：中立批判、严格拒稿（-）或宽松接收（+）。",
+                placeholders: "无",
+                content: `**Base**: 你是一名审稿人，将评审提交至知名ML会议的论文。请在决策上保持批判与谨慎。
+
+**Neg**: （追加）若论文较差或你不确定，请给出低分并拒绝。
+
+**Pos**: （追加）若论文较好或你不确定，请给出高分并接收。`
+            },
+            {
+                category: "文本审稿 (LLM)",
+                title: "文本审稿：JSON输出格式",
+                purpose: "强制AI以标准的JSON格式输出审稿意见，包含所有必填字段（如优势、劣势、评分）。",
+                placeholders: "无",
+                                content: `NeurIPS 评审表单（要点整合）：
+
+1) Summary：简要概括论文与贡献；不在此处批评，应让作者基本同意。
+     - Strengths & Weaknesses：从以下维度全面评估：
+         - Originality：任务/方法是否新颖？与既有工作差异是否清晰？相关工作是否充分引用？
+         - Quality：技术是否可靠？主张是否有理论/实验支持？方法是否合适？是否完整且如实评估优缺点？
+         - Clarity：写作是否清晰有序？信息是否充分以便复现？
+         - Significance：结果是否重要、可复用或推进 SOTA？是否提供独特数据/结论/方法？
+
+2) Questions：列出可在答辩中澄清你看法的问题与改进建议。
+
+3) Limitations：作者是否充分讨论局限与潜在社会影响？若不足，请给出建设性改进建议。
+
+4) Ethical concerns：如存在伦理问题应标记伦理审查（此处以布尔量化）。
+
+评分量表（严格遵守）：
+- Soundness：1–4（1 差，2 一般，3 好，4 优秀）
+- Presentation：1–4（1 差，2 一般，3 好，4 优秀）
+- Contribution：1–4（1 差，2 一般，3 好，4 优秀）
+- Overall：1–10（1 非常强烈拒绝 … 10 授奖级；请依据 NeurIPS 指南给分）
+- Confidence：1–5（1 低置信 … 5 极高置信）
+
+请仅输出 REVIEW JSON（不要附加任何解释或思考过程），字段及顺序如下；所有取值需满足上述量表/约束：
+\`\`\`json
+{
+    "Summary": "...",
+    "Strengths": ["..."],
+    "Weaknesses": ["..."],
+    "Originality": 1,
+    "Quality": 1,
+    "Clarity": 1,
+    "Significance": 1,
+    "Questions": ["..."],
+    "Limitations": ["..."],
+    "Ethical Concerns": false,
+    "Soundness": 1,
+    "Presentation": 1,
+    "Contribution": 1,
+    "Overall": 1,
+    "Confidence": 1,
+    "Decision": "Accept"
+}
+\`\`\`
+说明：Decision 仅可为 "Accept" 或 "Reject"；确保 JSON 可被自动解析且各分数落在量表范围内。`
+            },
+            {
+                category: "文本审稿 (LLM)",
+                title: "文本审稿：反思与改进",
+                purpose: "让AI审视自己写的审稿意见是否合理、准确，并进行迭代改进。",
+                placeholders: "{current_round}、{num_reflections}",
+                content: `第 {current_round}/{num_reflections} 轮。先审视评审准确性与合理性，保持清晰简洁和JSON格式正确；下一次尝试进行改进；若无需改进，在想法末尾加 "I am done" 并原样重复上次JSON（仅在不再修改时使用）。`
+            },
+            {
+                category: "文本审稿 (LLM)",
+                title: "文本审稿：Meta Review (AC角色)",
+                purpose: "设定AI为领域主席(AC)，要求它综合多份审稿意见，撰写一份Meta-review。",
+                placeholders: "{reviewer_count}",
+                content: `你是ML会议的领域主席（Area Chair）。负责将 {reviewer_count} 份评审整合为同一格式的 meta-review；在决策上保持批判与谨慎，寻求共识，尊重所有评审意见。`
+            },
+            {
+                category: "图像审稿 (VLM)",
+                title: "图像审稿：系统角色",
+                purpose: "设定AI为审稿人角色，使其保持批判性和谨慎。",
+                placeholders: "无",
+                content: `你是一名审稿人，将评审提交至知名ML会议的论文。请在决策上保持批判与谨慎。`
+            },
+            {
+                category: "图像审稿 (VLM)",
+                title: "图像审稿：VLM (图+注+文)",
+                purpose: "（VLM使用）要求AI同时分析图像、图注和正文，评估这三者之间是否一致、准确。",
+                placeholders: "{abstract}、{caption}、{main_text_figrefs}",
+                content: `摘要：
+
+{abstract}
+
+你将通过视觉API获得一张图。你的任务：
+1）细致观察图像；
+2）以科学方式详细描述；
+3）批判性分析图像与给定图注是否一致：
+
+{caption}
+
+4）结合正文中与该图相关的引用：
+
+{main_text_figrefs}
+
+最终请仅输出 REVIEW JSON（不需要额外说明文字或思考过程），字段如下：
+\`\`\`json
+{
+  "Img_description": "...",
+  "Img_review": "...",
+  "Caption_review": "...",
+  "Figrefs_review": "..."
+}
+\`\`\``
+            },
+            {
+                category: "图像审稿 (VLM)",
+                title: "图像审稿：VLM (价值评估)",
+                purpose: "（VLM使用）评估图像的信息量和价值，判断它是否应该被合并或移至附录。",
+                placeholders: "{abstract}、{caption}、{main_text_figrefs}、{reflection_page_info}",
+                content: `(结构与 'img_cap_ref_review_prompt' 相似, 新增字段: Overall_comments, Containing_sub_figures, Informative_review)`
+            },
+            {
+                category: "图像审稿 (VLM)",
+                title: "图像审稿：VLM (仅图像)",
+                purpose: "（VLM使用）让AI仅分析图像内容本身，提供科学的描述和改进建议。",
+                placeholders: "无",
+                content: `(返回 Img_description 与 Img_review 两字段，沿用 THOUGHT + JSON 格式。)`
+            },
+            {
+                category: "图像审稿 (VLM)",
+                title: "图像审稿：VLM (查重)",
+                purpose: "（VLM使用）设定AI为图像查重专家，找出论文中重复或高度相似的图像。",
+                placeholders: "无",
+                content: `你是识别重复或高度相似图像的专家。请分析这些图像并判断是否为重复或同一可视化的变体。响应格式：先推理，再给出 \`Duplicate figures: <重复图名列表>\`。务必使用论文中的精确图名（如 Figure 1、Figure 2b）。若无重复，回复 \`No duplicates found\`。`
+            },
+            {
+                category: "最终绘图聚合",
+                title: "绘图聚合：系统角色",
+                purpose: "设定AI角色，要求它编写一个Python脚本，用以整合所有数据并生成最终图表。",
+                placeholders: "{MAX_FIGURES}",
+                content: `关键点：仅使用已有 .npy 与 JSON 总结；不产生无关图；每图独立 try/except；控制总图数（约 {MAX_FIGURES}）；可将相关图合并为子图；专业外观；不使用下划线标签等。输出为完整 Python 脚本（用三个反引号包裹）。`
+            },
+            {
+                category: "最终绘图聚合",
+                title: "绘图聚合：生成脚本",
+                purpose: "提供数据总结，让AI编写一个完整的、可直接运行的Python绘图脚本。",
+                placeholders: "{idea_text}、{combined_summaries_str}",
+                content: `返回一个可直接运行的 Python 脚本，仅向 figures/ 输出图像；不要引用不存在的文件。`
+            },
+            {
+                category: "最终绘图聚合",
+                title: "绘图聚合：反思与改进脚本",
+                purpose: "让AI检查生成的绘图脚本和图表数量，修正图例、标签等问题。",
+                placeholders: "{figure_count}、{aggregator_out}、{MAX_FIGURES}",
+                content: `检查图数量、是否基于 .npy、标题/图例信息量、是否可合并、标签是否无下划线、是否唯一且无重复；若完成可回复 "I am done"。`
+            },
+            {
+                category: "TreeSearch / Agents",
+                title: "Agents: 基线代码 (英文)",
+                purpose: "一个通用的英文提示，用于快速请求AI编写一个包含数据、模型、训练循环的基线代码。",
+                placeholders: "无",
+                content: `You are an AI researcher. Write concise, well-structured baseline code for the task described below. Keep external dependencies minimal. Include: (1) data loading or synthetic-data generation, (2) a simple model/baseline, (3) training or evaluation loop with metrics printed, (4) a short concluding printout of key results. Return exactly one Python code block.`
+            },
+            {
+                category: "日志与选择",
+                title: "日志：选择最佳节点",
+                purpose: "让AI评估多个实验节点，综合考虑（不仅仅是Loss）来选择最佳实现。",
+                placeholders: "...",
+                content: `Introduction: You are an experienced AI researcher evaluating ...
+Task: Select the best implementation ... Avoid relying too heavily on the validation loss alone ...`
+            },
+            {
+                category: "日志与选择",
+                title: "日志：总结进展",
+                purpose: "让AI扮演研究员，总结当前的实验进展。",
+                placeholders: "...",
+                content: `System: You are an AI researcher summarizing experimental progress. ...
+User: Please provide a comprehensive summary ...`
+            },
+            {
+                category: "日志与选择",
+                title: "日志：保存实验笔记",
+                purpose: "综合一个阶段的发现，生成一份全面的总结笔记。",
+                placeholders: "...",
+                content: `summary_prompt: Synthesize the experimental findings from this stage
+user_message: Generate a comprehensive summary of the experimental findings in this stage`
+            },
+            {
+                category: "日志聚合与阶段总结",
+                title: "日志聚合：JSON总结",
+                purpose: "从多个实验节点中提取洞见，并以严格的JSON格式输出，禁止AI臆造信息。",
+                placeholders: "...",
+                content: `(系统提示：抓取跨节点洞见；禁止臆造。)
+(输出控制：THOUGHT + JSON，字段含：实验描述/重要性/方法、图（path/description/analysis）、关键数值结果（result/description/analysis）。)`
+            },
+            {
+                category: "日志聚合与阶段总结",
+                title: "日志聚合：合并阶段总结",
+                purpose: "将上一阶段的总结与当前阶段的总结合并，同时保持结构清晰、去除冗余。",
+                placeholders: "...",
+                content: `(合并前序与当前阶段总结；保持结构；控制冗余；不臆造。)`
+            },
+            {
+                category: "日志聚合与阶段总结",
+                title: "日志聚合：生成总体规划",
+                purpose: "基于父节点和当前节点的信息，生成一个JSON格式的“总体规划”文件。",
+                placeholders: "...",
+                content: `(基于父节点与当前节点生成 overall_plan 的 JSON（同 THOUGHT + JSON）。)`
+            }
+        ];
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('promptGrid');
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const guideButton = document.getElementById('guideButton');
+            const closeModalButton = document.getElementById('closeModalButton');
+            const guideModal = document.getElementById('guideModal');
+
+            // Populate categories
+            const categories = [...new Set(allPrompts.map(p => p.category))];
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+
+            // Render all prompts
+            renderPrompts(allPrompts);
+
+            // --- Event Listeners ---
+            searchInput.addEventListener('input', handleFilterChange);
+            categoryFilter.addEventListener('change', handleFilterChange);
+
+            guideButton.addEventListener('click', () => guideModal.classList.add('is-open'));
+            closeModalButton.addEventListener('click', () => guideModal.classList.remove('is-open'));
+            guideModal.addEventListener('click', (e) => {
+                if (e.target === guideModal) {
+                    guideModal.classList.remove('is-open');
+                }
+            });
+
+            // Event delegation for copy buttons
+            grid.addEventListener('click', (e) => {
+                const button = e.target.closest('.copy-btn');
+                if (button) {
+                    const content = button.dataset.content;
+                    copyToClipboard(content, button);
+                }
+            });
+
+            // --- Functions ---
+            function handleFilterChange() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+
+                const filteredPrompts = allPrompts.filter(prompt => {
+                    const matchesCategory = selectedCategory === 'all' || prompt.category === selectedCategory;
+                    const matchesSearch = !searchTerm ||
+                                          prompt.title.toLowerCase().includes(searchTerm) ||
+                                          prompt.purpose.toLowerCase().includes(searchTerm) ||
+                                          prompt.content.toLowerCase().includes(searchTerm);
+                    return matchesCategory && matchesSearch;
+                });
+
+                renderPrompts(filteredPrompts);
+            }
+
+            function renderPrompts(prompts) {
+                grid.innerHTML = ''; // Clear existing
+                if (prompts.length === 0) {
+                    grid.innerHTML = `<p class="text-neutral-500 md:col-span-2 lg:col-span-3 text-center">未找到匹配的提示词。</p>`;
+                    return;
+                }
+                
+                prompts.forEach(prompt => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transition-all duration-300 ease-in-out';
+                    
+                    const cleanContent = prompt.content
+                        .replace(/```json/g, '```')
+                        .replace(/```text/g, '```')
+                        .replace(/```markdown/g, '```')
+                        .replace(/```python/g, '```')
+                        .replace(/```latex/g, '```');
+
+                    const src = prompt.source || DEFAULT_SOURCE;
+                    const attributionHeader = `Source: ${src.name} (${src.license}) ${src.url ? src.url : ''}${src.modified ? ' · adapted' : ''}`.trim();
+                    const copyContent = `${attributionHeader}\n\n${cleanContent}`;
+
+                    card.innerHTML = `
+                        <div class="p-4 border-b border-neutral-200">
+                            <h3 class="font-mono text-base font-bold text-indigo-600">${prompt.title}</h3>
+                            <p class="text-xs text-neutral-500 font-medium">${prompt.category}</p>
+                        </div>
+                        <div class="p-4 flex-grow">
+                            <div>
+                                <h4 class="text-sm font-semibold mb-1">用途：</h4>
+                                <p class="text-sm text-neutral-700 mb-3">${prompt.purpose}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-semibold mb-1">占位符：</h4>
+                                <p class="text-sm text-neutral-700 font-mono break-words">${prompt.placeholders || '无'}</p>
+                            </div>
+                            <div class="mt-3 text-xs text-neutral-500">
+                                <span class="font-semibold">来源：</span>
+                                ${src.url ? `<a class="text-indigo-600 hover:text-indigo-800" href="${src.url}" target="_blank" rel="noopener noreferrer">${src.name}</a>` : `${src.name}`}
+                                <span class="mx-1">·</span>
+                                <span class="font-mono">${src.license}</span>
+                                ${src.modified ? '<span class="mx-1">·</span><span>已改编</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="prompt-card-content p-4 bg-neutral-900 text-white text-sm">
+                            <div class="relative">
+                                <button class="copy-btn absolute top-2 right-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs px-2 py-1 rounded-md transition-colors" data-content="${escapeHTML(copyContent)}">
+                                    <span>复制</span>
+                                </button>
+                                <pre class="code-block overflow-x-auto max-h-60 rounded-md p-3 pr-12"><code class="language-text">${escapeHTML(prompt.content)}</code></pre>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            function copyToClipboard(text, button) {
+                // Use a temporary textarea to preserve formatting
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    button.textContent = '已复制!';
+                    setTimeout(() => {
+                        button.textContent = '复制';
+                    }, 2000);
+                } catch (err) {
+                    console.error('无法复制', err);
+                    button.textContent = '失败';
+                    setTimeout(() => {
+                        button.textContent = '复制';
+                    }, 2000);
+                }
+                document.body.removeChild(textArea);
+            }
+            
+            function escapeHTML(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+        });
+    </script>
+</body>
+</html>
+
