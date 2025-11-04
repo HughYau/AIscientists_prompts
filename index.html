@@ -3,6 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Scientist 交互式提示词手册：可搜索、可筛选的一站式提示词画廊，欢迎 Star 和贡献！">
+    <link rel="canonical" href="https://hughyau.github.io/AIscientists_prompts/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="AI-Scientist 提示词手册 | AIscientists_prompts">
+    <meta property="og:description" content="可搜索、可筛选的一站式提示词画廊，欢迎 Star 和贡献！">
+    <meta property="og:url" content="https://hughyau.github.io/AIscientists_prompts/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AI-Scientist 提示词手册 | AIscientists_prompts">
+    <meta name="twitter:description" content="可搜索、可筛选的一站式提示词画廊，欢迎 Star 和贡献！">
     <title>AI-Scientist 交互式提示词手册</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,11 +57,25 @@
     <!-- Header -->
     <header class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-4">
-                <h1 class="text-2xl font-bold text-neutral-900">AI-Scientist 提示词手册</h1>
-                <button id="guideButton" class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">
-                    阅读指引
-                </button>
+            <div class="flex justify-between items-center py-4 gap-4">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl font-bold text-neutral-900">AI-Scientist 提示词手册</h1>
+                    <span class="hidden sm:inline-block text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">Community Edition</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-4">
+                    <a class="text-sm text-neutral-700 hover:text-neutral-900" href="https://github.com/HughYau/AIscientists_prompts" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a class="text-sm text-neutral-700 hover:text-neutral-900" href="https://github.com/HughYau/AIscientists_prompts/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+                    <a class="text-sm text-neutral-700 hover:text-neutral-900" href="https://github.com/HughYau/AIscientists_prompts/pulls" target="_blank" rel="noopener noreferrer">Pull Requests</a>
+                    <a class="github-button" href="https://github.com/HughYau/AIscientists_prompts" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star HughYau/AIscientists_prompts on GitHub">Star</a>
+                    <button id="guideButton" class="ml-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors">阅读指引</button>
+                </nav>
+                <!-- Mobile actions -->
+                <div class="md:hidden flex items-center gap-2">
+                    <a class="text-neutral-600 hover:text-neutral-900" href="https://github.com/HughYau/AIscientists_prompts" target="_blank" aria-label="GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.43 2.865 8.19 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.833.091-.647.35-1.088.636-1.339-2.22-.253-4.555-1.112-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.254-.446-1.273.098-2.654 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.851.004 1.706.115 2.504.337 1.909-1.296 2.748-1.026 2.748-1.026.546 1.381.203 2.4.1 2.654.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .268.18.58.688.481A10.019 10.019 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" clip-rule="evenodd"/></svg>
+                    </a>
+                    <button id="guideButtonMobile" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">指引</button>
+                </div>
             </div>
         </div>
     </header>
@@ -89,7 +112,18 @@
 
     <!-- Footer Attribution -->
     <footer class="border-t border-neutral-200 bg-white">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-neutral-600 flex flex-col gap-1">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-sm text-neutral-600 flex flex-col gap-2">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-neutral-700">
+                    喜欢这个项目吗？欢迎在 GitHub 上点个 Star，并通过 Issue/PR 一起共建。
+                </p>
+                <div class="flex items-center gap-3">
+                    <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/HughYau/AIscientists_prompts" target="_blank" rel="noopener noreferrer">前往仓库</a>
+                    <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/HughYau/AIscientists_prompts/issues/new/choose" target="_blank" rel="noopener noreferrer">提出 Issue / 建议</a>
+                    <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/HughYau/AIscientists_prompts/pulls" target="_blank" rel="noopener noreferrer">提交 PR</a>
+                    <a class="github-button" href="https://github.com/HughYau/AIscientists_prompts" data-icon="octicon-star" data-show-count="true" aria-label="Star HughYau/AIscientists_prompts on GitHub">Star</a>
+                </div>
+            </div>
             <p>
                 本页面部分提示词改编自
                 <a class="text-indigo-600 hover:text-indigo-800" href="https://github.com/SakanaAI/AI-Scientist" target="_blank" rel="noopener noreferrer">SakanaAI - AI-Scientist-v2</a>
@@ -656,6 +690,137 @@ user_message: Generate a comprehensive summary of the experimental findings in t
                 placeholders: "...",
                 content: `(基于父节点与当前节点生成 overall_plan 的 JSON（同 THOUGHT + JSON）。)`
             }
+            ,
+            {
+                category: "论文撰写 (通用)",
+                title: "Contribution Polishing",
+                purpose: "将粗糙贡献点转写为可被审稿人快速识别、无水分、无夸张的贡献描述。",
+                placeholders: "{raw_contributions}、{novelty_axis}",
+                content: `对以下贡献点进行学术润色：
+{raw_contributions}
+
+请：
+- 指定每条贡献的新颖性轴（{novelty_axis}: theory/data/insight/system/benchmarking/fine-grained analysis）
+- 压缩为 1–2 句
+- 使用主动语态
+- 避免空泛形容词（e.g., significant, dramatic）
+- 避免模板化词（e.g., to the best of our knowledge）
+- 提供审稿友好的委婉语气（likely/implies/suggests）
+
+输出三种版本：
+A) 保守（审稿人防御性更高）
+B) 中立（主流风格）
+C) 自信（适合oral争取）
+
+格式：Markdown bullet points`,
+                source: { name: '原创 by Q', license: 'Original', modified: false }
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "Related Work 结构化对比维度生成器",
+                purpose: "帮助快速构建层次清晰的Related Work段落骨架，使审稿人更容易理解差异点。",
+                placeholders: "{topic}、{subfields}",
+                content: `给定论文主题：{topic}
+相关子领域：{subfields}
+
+请输出 5 个可用于组织 Related Work 的对比维度，每个维度包含：
+- 对比标准（一句话定义）
+- 领域主流方法类别
+- 每类别的代表论文（不杜撰）
+- “缺什么”→本工作切入点
+- 引导段落写法（可直接粘贴）
+- 适合使用的连接词（e.g., conversely, however）
+
+输出 Markdown 表格（字段：Dimension | Standard | Clusters | Reps | Missing Gap | Template | Connectors）`,
+                source: { name: '原创 by Q', license: 'Original', modified: false }
+            },
+            {
+                category: "论文撰写 (通用)",
+                title: "Title Optimizer",
+                purpose: "提出适合顶会的标题变体。",
+                placeholders: "{core_idea}、{method_keyword}、{application_domain}",
+                content: `核心思想：{core_idea}
+关键词：{method_keyword}
+应用领域：{application_domain}
+
+请输出 6 个替代标题：
+1) 信息密度高
+2) 叙述式 insight
+3) 对比式 framing
+4) 技术贡献聚焦
+5) 引入 scaling/robustness
+6) 简洁 workshop 版本`,
+                source: { name: '原创 by Q', license: 'Original', modified: false }
+            },
+            {
+    category: "模型架构解释",
+    title: "方法部分：读者友好解释器",
+    purpose: "避免方法章节晦涩，改善可读性。",
+    placeholders: "{method_block}",
+    content: `你是 NeurIPS 写作导师。
+下面是方法章节的一段草稿：{method_block}
+
+请：
+1. 标记晦涩段落
+2. 找出读者会疑惑的定义
+3. 给出“意图解释句”补充
+4. 提供更自然的叙述顺序
+5. 推荐更直觉的符号选择
+6. 增加可读性提示句（why）
+
+输出格式：
+- 疑点：
+- 更直觉的重排结构：
+- 推荐的过渡句：
+- 建议加入的动机句：`,
+ source: { name: '原创 by Q', license: 'Original', modified: false }
+},
+{
+    category: "论文撰写 (通用)",
+    title: "科研实验：鲁棒性与消融检查表",
+    purpose: "为实验部分添加严谨性，避免被审稿人质疑实验深度。",
+    placeholders: "{method_name}",
+    content: `你是一名顶级会议常驻审稿人，擅长质疑实验鲁棒性。
+现在我正在评估方法 {method_name}。
+请根据当前学术审稿趋势，生成一份鲁棒性检查清单。
+
+要求包含：
+1. 消融实验建议
+2. 超参数敏感性建议
+3. 数据分布偏移检查
+4. 数据规模缩放实验
+5. 泛化测试（跨域/跨场景）
+6. 随机种子稳定性
+7. 模型复杂度成因分析
+8. 潜在负面结果的合理解释策略
+
+输出：一份结构化的bullet checklist，适用于 rebuttal 阶段补充。`,
+    source: { name: '原创 by Q', license: 'Original', modified: false }
+},
+{
+    category: "论文撰写 (通用)",
+    title: "相关工作：贡献边界划分",
+    purpose: "帮助作者区分自己与既有工作的贡献差异，避免被说 incremental。",
+    placeholders: "{area}",
+    content: `你是一位 AI 论文写作顾问。
+请为以下研究领域 {area} 构建一种“贡献空间划分”方式，包含：
+
+1. 历史分期（早期 / 当前趋势）
+2. 技术路线分类（模型 / 数据 / 优化 / 理论）
+3. 常见不足点列表（学界共识痛点）
+4. 我可以切入的贡献边界（项目化）
+5. 如何写不显得吹牛
+6. 如何规避“缺乏意义”的攻击点
+
+输出格式：
+- 贡献路线图（Timeline + Axes）
+- 主流方法的共性弱点
+- 我可以声称的安全贡献边界
+- 推荐写法模板`,
+    source: { name: '原创 by Q', license: 'Original', modified: false }
+}
+
+
         ];
 
 
@@ -684,6 +849,10 @@ user_message: Generate a comprehensive summary of the experimental findings in t
             categoryFilter.addEventListener('change', handleFilterChange);
 
             guideButton.addEventListener('click', () => guideModal.classList.add('is-open'));
+            const guideButtonMobile = document.getElementById('guideButtonMobile');
+            if (guideButtonMobile) {
+                guideButtonMobile.addEventListener('click', () => guideModal.classList.add('is-open'));
+            }
             closeModalButton.addEventListener('click', () => guideModal.classList.remove('is-open'));
             guideModal.addEventListener('click', (e) => {
                 if (e.target === guideModal) {
@@ -801,6 +970,8 @@ user_message: Generate a comprehensive summary of the experimental findings in t
             }
         });
     </script>
+    <!-- GitHub Buttons script for Star button -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 </html>
 
